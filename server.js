@@ -4,6 +4,7 @@ const swaggerUi = require("swagger-ui-express");
 const specs = require("./swagger");
 const config = require("./config");
 const customerRouter = require("./routes/customers");
+const orderRouter = require("./routes/orders");
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/customers", customerRouter);
+app.use("/api/orders", orderRouter);
 
 app.use((err, req, res, next) => {
   console.error("Ошибка:", err.message);

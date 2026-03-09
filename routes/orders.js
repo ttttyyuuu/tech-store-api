@@ -1,0 +1,228 @@
+const express = require("express");
+const router = express.Router();
+
+const orderController = require("../controllers/orderController");
+const auth = require("../middleware/auth");
+
+const validateCreateOrder = (req, res, next) => next();
+const validateUpdateOrder = (req, res, next) => next();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Orders
+ *   description: Операции с заказами (включая позиции товаров)
+ */
+
+/**
+ * @swagger
+ * /api/orders:
+ *   get:
+ *     summary: Получить список заказов
+ *     tags: [Orders]
+ *     description: Поддерживает фильтры по статусу и ПВЗ, пагинацию
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Номер страницы
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 20
+ *           default: 10
+ *         description: Количество записей на странице
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [new, processing, ready_for_pickup, completed, canceled]
+ *         description: Фильтр по статусу заказа
+ *       - in: query
+ *         name: pvzId
+ *         schema:
+ *           type: integer
+ *         description: Фильтр по ID пункта выдачи
+ *     responses:
+ *       200:
+ *         description: Список заказов (с информацией о клиенте и ПВЗ)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id: { type: integer }
+ *                   customerId: { type: integer }
+ *                   customerName: { type: string }
+ *                   totalPrice: { type: number }
+ *                   status: { type: string }
+ *                   pvzId: { type: integer }
+ *                   pvzAddress: { type: string }
+ *                   pvzCity: { type: string }
+ *                   createdAt: { type: string, format: date-time }
+ *       400:
+ *         description: Некорректные параметры
+ */
+router.get("/", orderController.getAllOrders);
+
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *   get:
+ *     summary: Получить заказ по ID
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Детали заказа + массив позиций (items)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id: { type: integer }
+ *                 customerId: { type: integer }
+ *                 customerName: { type: string }
+ *                 totalPrice: { type: number }
+ *                 status: { type: string }
+ *                 pvzId: { type: integer }
+ *                 pvzAddress: { type: string }
+ *                 pvzCity: { type: string }
+ *                 createdAt: { type: string, format: date-time }
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       productName: { type: string }
+ *                       quantity: { type: integer }
+ *                       price: { type: number }
+ *       404:
+ *         description: Заказ не найден
+ */
+router.get("/:id", orderController.getOrderById);
+
+/**
+ * @swagger
+ * /api/orders:
+ *   post:
+ *     summary: Создать новый заказ
+ *     tags: [Orders]
+ *     security:
+ *       - basicAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - customerId
+ *               - pvzId
+ *               - items
+ *             properties:
+ *               customerId:
+ *                 type: integer
+ *               pvzId:
+ *                 type: integer
+ *               status:
+ *                 type: string
+ *                 enum: [new, processing, ready_for_pickup, completed, canceled]
+ *                 default: new
+ *               items:
+ *                 type: array
+ *                 minItems: 1
+ *                 items:
+ *                   type: object
+ *                   required: [productName, quantity, price]
+ *                   properties:
+ *                     productName: { type: string, minLength: 1 }
+ *                     quantity: { type: integer, minimum: 1 }
+ *                     price: { type: number, minimum: 0 }
+ *     responses:
+ *       201:
+ *         description: Заказ успешно создан
+ *       400:
+ *         description: Ошибка валидации или пустой список товаров
+ *       401:
+ *         description: Не авторизован
+ *       404:
+ *         description: Клиент или ПВЗ не найден
+ */
+router.post("/", auth, validateCreateOrder, orderController.createOrder);
+
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *   put:
+ *     summary: Обновить заказ (статус и/или ПВЗ)
+ *     tags: [Orders]
+ *     security:
+ *       - basicAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [new, processing, ready_for_pickup, completed, canceled]
+ *               pvzId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Заказ обновлён
+ *       401:
+ *         description: Не авторизован
+ *       404:
+ *         description: Заказ не найден
+ */
+router.put("/:id", auth, validateUpdateOrder, orderController.updateOrder);
+
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *   delete:
+ *     summary: Удалить заказ
+ *     tags: [Orders]
+ *     security:
+ *       - basicAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Заказ удалён
+ *       401:
+ *         description: Не авторизован
+ *       404:
+ *         description: Заказ не найден
+ *       409:
+ *         description: Нельзя удалить заказ со статусом, отличным от new/canceled
+ */
+router.delete("/:id", auth, orderController.deleteOrder);
+
+module.exports = router;
