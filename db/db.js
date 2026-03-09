@@ -1,13 +1,10 @@
-// db/db.js
 const Database = require("better-sqlite3");
 const path = require("path");
 
-// Путь к файлу базы
 const dbPath = path.join(__dirname, "store.db");
 
 const db = new Database(dbPath, { verbose: console.log });
 
-// Включаем foreign keys (это обязательно для работы FOREIGN KEY ограничений)
 db.pragma("foreign_keys = ON");
 
 db.exec(`
@@ -52,7 +49,6 @@ db.exec(`
   );
 `);
 
-// Хардкод ПВЗ, если таблица пустая
 const pvzCount = db.prepare("SELECT COUNT(*) as cnt FROM pvz").get().cnt;
 
 if (pvzCount === 0) {
@@ -73,7 +69,7 @@ if (pvzCount === 0) {
   });
 
   transaction();
-  console.log("ПВЗ успешно добавлены (хардкод)");
+  console.log("ПВЗ успешно добавлены");
 }
 
 module.exports = db;
