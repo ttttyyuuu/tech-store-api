@@ -63,6 +63,7 @@ exports.create = (data) => {
     throw new AppError("Клиент с таким email уже существует", 400);
   }
 
+  const insertStmt = db.prepare("INSERT INTO customers (name, email, phone) VALUES (?, ?, ?)");
   const info = insertStmt.run(name, email, phone);
 
   const newCustomer = db

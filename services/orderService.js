@@ -175,8 +175,7 @@ exports.getStats = () => {
     GROUP BY p.id
   `).all();
 
-  const activeClients = db.prepare("SELECT COUNT(*) as count FROM customers WHERE isActive = 1").get().count;
   const clientsWithOrders = db.prepare("SELECT COUNT(DISTINCT customerId) as count FROM orders").get().count;
 
-  return { ordersByStatus, totalOrders, totalRevenue, ordersByPvz, activeClients, clientsWithOrders };
+  return { ordersByStatus, totalOrders, totalRevenue, ordersByPvz, clientsWithOrders };
 };
