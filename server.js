@@ -6,6 +6,7 @@ const config = require("./config");
 const customerRouter = require("./routes/customers");
 const orderRouter = require("./routes/orders");
 const pvzRouter = require("./routes/pvz");
+const statsRouter = require("./routes/stats");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.get("/", (req, res) => {
 app.use("/api/customers", customerRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/pvz", pvzRouter);
+app.use("/api/stats", statsRouter);
 
 app.use((err, req, res, next) => {
   console.error("Ошибка:", err.message);

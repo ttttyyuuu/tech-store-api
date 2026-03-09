@@ -157,3 +157,26 @@ exports.delete = (id) => {
 
   db.prepare("DELETE FROM orders WHERE id = ?").run(id);
 };
+
+exports.getStats = () => {
+  const ordersByStatus = db.prepare(`
+    SELECT status, COUNT(*) as count
+    FROM orders
+    GROUP BY status
+  `).all().reduce((acc, row) => ({ ...acc, [row.status]: row.count }), {});
+
+  const totalOrders = db.prepare("SELECT COUNT(*) as count FROM orders").get().count;
+  const totalRevenue = db.prepare("SELECT SUM(totalPrice) as sum FROM orders").get().sum || 0;
+
+  const ordersByPvz = db.prepare(`
+    SELECT p.id as pvzId, p.city, p.address, COUNT(o.id) as orderCount, SUM(o.totalPrice) as revenue
+    FROM pvz p
+    LEFT JOIN orders o ON p.id = o.pvzId
+    GROUP BY p.id
+  `).all();
+
+  const activeClients = db.prepare("SELECT COUNT(*) as count FROM customers WHERE isActive = 1").get().count;
+  const clientsWithOrders = db.prepare("SELECT COUNT(DISTINCT customerId) as count FROM orders").get().count;
+
+  return { ordersByStatus, totalOrders, totalRevenue, ordersByPvz, activeClients, clientsWithOrders };
+};
