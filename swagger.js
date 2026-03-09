@@ -1,0 +1,41 @@
+const swaggerJsdoc = require("swagger-jsdoc");
+const path = require("path");
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Магазин техники API",
+      version: "1.0.0",
+      description:
+        "REST API для управления клиентами, заказами и пунктами выдачи (ПВЗ).",
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Локальный сервер (разработка)",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        basicAuth: {
+          type: "http",
+          scheme: "basic",
+          description:
+            "Basic Authentication. Используйте логин: admin, пароль: secret",
+        },
+      },
+    },
+    tags: [
+      { name: "Customers", description: "Клиенты магазина" },
+      { name: "Orders", description: "Заказы" },
+      { name: "PVZ", description: "Пункты выдачи заказов" },
+      { name: "Stats", description: "Статистика заказов" },
+    ],
+  },
+  apis: ["./routes/*.js"],
+};
+
+const specs = swaggerJsdoc(options);
+
+module.exports = specs;

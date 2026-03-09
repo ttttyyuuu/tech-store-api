@@ -1,7 +1,9 @@
 const express = require("express");
+const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const specs = require("./swagger");
 
 const app = express();
-const cors = require("cors");
 const PORT = 3000;
 
 app.use;
@@ -13,10 +15,22 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(
+  `/api-docs`,
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    explorer: true,
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+    customerSiteTitle: "Магазин техники API",
+  }),
+);
+
 app.get("/", (req, res) => {
   res.json({
     message: "Добро пожаловать.",
-    docs: "/api-docs (будет позже)",
+    docs: "/api-docs",
   });
 });
 
@@ -31,5 +45,8 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
+  console.log(`Сервер запущен на порту http://localhost:${PORT}`);
+  console.log(
+    `Документация доступна по адресу http://localhost:${PORT}/api-docs`,
+  );
 });
