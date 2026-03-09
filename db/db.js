@@ -1,28 +1,34 @@
+// db/db.js
 const Database = require("better-sqlite3");
 const path = require("path");
 
+// Путь к файлу базы
 const dbPath = path.join(__dirname, "store.db");
 
 const db = new Database(dbPath, { verbose: console.log });
 
-db.pragma("foreingn_keys = ON");
+// Включаем foreign keys (это обязательно для работы FOREIGN KEY ограничений)
+db.pragma("foreign_keys = ON");
 
 db.exec(`
-    CREATE TABLE IF NOT EXISTS pvz (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        address TEXT NOT NULL,
-        city TEXT NOT NULL,
-    );
+  -- Таблица ПВЗ (без AUTOINCREMENT, т.к. id фиксированные)
+  CREATE TABLE IF NOT EXISTS pvz (
+    id      INTEGER PRIMARY KEY,
+    address TEXT NOT NULL,
+    city    TEXT NOT NULL
+  );
 
-    CREATE TABLE IF NOT EXISTS customers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL CHEACK (length(name) >= 3 AND length(name) <= 50),
-    email TEXT NOT NULL UNIQUE,
-    phone TEXT NOT NULL UNIQUE,
+  -- Таблица клиентов
+  CREATE TABLE IF NOT EXISTS customers (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    name         TEXT NOT NULL CHECK(length(name) >= 3 AND length(name) <= 50),
+    email        TEXT NOT NULL UNIQUE,
+    phone        TEXT NOT NULL UNIQUE,
     registeredAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
+  );
 
-    CREATE TABLE IF NOT EXISTS orders (
+  -- Таблица заказов
+  CREATE TABLE IF NOT EXISTS orders (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     customerId INTEGER NOT NULL,
     totalPrice REAL    NOT NULL DEFAULT 0,
@@ -34,6 +40,7 @@ db.exec(`
     FOREIGN KEY (pvzId)      REFERENCES pvz(id)       ON DELETE RESTRICT
   );
 
+  -- Таблица позиций заказа
   CREATE TABLE IF NOT EXISTS order_items (
     orderId     INTEGER NOT NULL,
     productName TEXT    NOT NULL,
@@ -45,12 +52,13 @@ db.exec(`
   );
 `);
 
+// Хардкод ПВЗ, если таблица пустая
 const pvzCount = db.prepare("SELECT COUNT(*) as cnt FROM pvz").get().cnt;
 
 if (pvzCount === 0) {
-  const insertPvz = db.prepare(
-    `INSERT INTO pvz (id, address, city) VALUES (?, ?, ?)`,
-  );
+  const insertPvz = db.prepare(`
+    INSERT INTO pvz (id, address, city) VALUES (?, ?, ?)
+  `);
 
   const pvzList = [
     [1, 'ул. Ленина, 10, ТЦ "Галерея"', "Москва"],
@@ -65,7 +73,7 @@ if (pvzCount === 0) {
   });
 
   transaction();
-  console.log("ПВЗ успешно добавлены");
+  console.log("ПВЗ успешно добавлены (хардкод)");
 }
 
 module.exports = db;

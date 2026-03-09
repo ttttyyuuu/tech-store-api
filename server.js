@@ -50,3 +50,6 @@ app.listen(PORT, () => {
     `Документация доступна по адресу http://localhost:${PORT}/api-docs`,
   );
 });
+
+const db = require("./db/db");
+console.log("ПВЗ в базе:", db.prepare("SELECT * FROM pvz").all());
