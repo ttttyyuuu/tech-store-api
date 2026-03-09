@@ -26,14 +26,8 @@ const options = {
         },
       },
     },
-    tags: [
-      { name: "Customers", description: "Клиенты магазина" },
-      { name: "Orders", description: "Заказы" },
-      { name: "PVZ", description: "Пункты выдачи заказов" },
-      { name: "Stats", description: "Статистика заказов" },
-    ],
   },
-  apis: ["./routes/*.js"],
+  apis: ["./docs/*.yaml"],
 };
 
 const specs = swaggerJsdoc(options);

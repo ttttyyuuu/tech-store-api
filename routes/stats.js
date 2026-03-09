@@ -4,48 +4,6 @@ const router = express.Router();
 const orderController = require("../controllers/orderController");
 const auth = require("../middleware/auth");
 
-/**
- * @swagger
- * /api/stats:
- *   get:
- *     summary: Получить статистику заказов
- *     tags: [Stats]
- *     security:
- *       - basicAuth: []
- *     description: Агрегированная статистика по статусам, ПВЗ, выручке и клиентам
- *     responses:
- *       200:
- *         description: Статистика заказов
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 ordersByStatus:
- *                   type: object
- *                   additionalProperties:
- *                     type: integer
- *                 totalOrders:
- *                   type: integer
- *                 totalRevenue:
- *                   type: number
- *                 ordersByPvz:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       pvzId: { type: integer }
- *                       city: { type: string }
- *                       address: { type: string }
- *                       orderCount: { type: integer }
- *                       revenue: { type: number }
- *                 activeClients:
- *                   type: integer
- *                 clientsWithOrders:
- *                   type: integer
- *       401:
- *         description: Не авторизован
- */
 router.get("/", auth, orderController.getStats);
 
 module.exports = router;
