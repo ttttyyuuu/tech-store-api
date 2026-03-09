@@ -4,7 +4,7 @@ const swaggerUi = require("swagger-ui-express");
 const specs = require("./swagger");
 
 const app = express();
-const PORT = 3000;
+const { PORT } = require("./config");
 
 app.use;
 app.use(express.json());
@@ -50,6 +50,3 @@ app.listen(PORT, () => {
     `Документация доступна по адресу http://localhost:${PORT}/api-docs`,
   );
 });
-
-const db = require("./db/db");
-console.log("ПВЗ в базе:", db.prepare("SELECT * FROM pvz").all());

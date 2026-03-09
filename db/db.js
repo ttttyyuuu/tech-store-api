@@ -8,14 +8,12 @@ const db = new Database(dbPath, { verbose: console.log });
 db.pragma("foreign_keys = ON");
 
 db.exec(`
-  -- Таблица ПВЗ (без AUTOINCREMENT, т.к. id фиксированные)
   CREATE TABLE IF NOT EXISTS pvz (
     id      INTEGER PRIMARY KEY,
     address TEXT NOT NULL,
     city    TEXT NOT NULL
   );
 
-  -- Таблица клиентов
   CREATE TABLE IF NOT EXISTS customers (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     name         TEXT NOT NULL CHECK(length(name) >= 3 AND length(name) <= 50),
@@ -24,7 +22,6 @@ db.exec(`
     registeredAt DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
-  -- Таблица заказов
   CREATE TABLE IF NOT EXISTS orders (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     customerId INTEGER NOT NULL,
@@ -37,7 +34,6 @@ db.exec(`
     FOREIGN KEY (pvzId)      REFERENCES pvz(id)       ON DELETE RESTRICT
   );
 
-  -- Таблица позиций заказа
   CREATE TABLE IF NOT EXISTS order_items (
     orderId     INTEGER NOT NULL,
     productName TEXT    NOT NULL,

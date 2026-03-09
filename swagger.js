@@ -22,7 +22,7 @@ const options = {
           type: "http",
           scheme: "basic",
           description:
-            "Basic Authentication. Используйте логин: admin, пароль: secret",
+            "Basic Authentication для доступа к административным эндпоинтам. Используйте учетные данные из конфигурации.",
         },
       },
     },
