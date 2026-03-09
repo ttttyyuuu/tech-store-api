@@ -2,7 +2,7 @@
   "name": "tech-store-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node --no-deprecation server.js",
     "dev": "nodemon --no-deprecation server.js"
