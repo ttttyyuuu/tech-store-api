@@ -5,6 +5,7 @@ const specs = require("./swagger");
 const config = require("./config");
 const customerRouter = require("./routes/customers");
 const orderRouter = require("./routes/orders");
+const pvzRouter = require("./routes/pvz");
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/customers", customerRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/pvz", pvzRouter);
 
 app.use((err, req, res, next) => {
   console.error("Ошибка:", err.message);
@@ -46,6 +48,19 @@ app.use((err, req, res, next) => {
   res.status(status).json({
     error: err.message || "Внутренняя ошибка сервера",
   });
+});
+
+const { validationResult } = require("express-validator");
+
+app.use((req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      message: "Ошибка валидации",
+      errors: errors.array(),
+    });
+  }
+  next();
 });
 
 const PORT = config.PORT || 3000;

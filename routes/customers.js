@@ -3,9 +3,21 @@ const router = express.Router();
 
 const customerController = require("../controllers/customerController");
 const auth = require("../middleware/auth");
+const { createCustomer, updateCustomer } = require("../validators/customer");
 
-const validateCreateCustomer = (req, res, next) => next();
-const validateUpdateCustomer = (req, res, next) => next();
+router.get("/", customerController.getAllCustomers);
+router.get("/:id", customerController.getCustomerById);
+
+router.post("/", auth, ...createCustomer, customerController.createCustomer);
+
+router.put("/:id", auth, ...updateCustomer, customerController.updateCustomer);
+
+router.delete(
+  "/:id",
+  auth,
+  customerController.deleteCustomer ||
+    ((req, res) => res.status(501).json({ message: "Not implemented yet" })),
+);
 
 /**
  * @swagger
@@ -61,7 +73,6 @@ const validateUpdateCustomer = (req, res, next) => next();
  *       400:
  *         description: Некорректные параметры запроса
  */
-router.get("/", customerController.getAllCustomers);
 
 /**
  * @swagger
@@ -75,14 +86,12 @@ router.get("/", customerController.getAllCustomers);
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID клиента
  *     responses:
  *       200:
  *         description: Данные клиента
  *       404:
  *         description: Клиент не найден
  */
-router.get("/:id", customerController.getCustomerById);
 
 /**
  * @swagger
@@ -123,12 +132,6 @@ router.get("/:id", customerController.getCustomerById);
  *       409:
  *         description: Email уже используется
  */
-router.post(
-  "/",
-  auth,
-  validateCreateCustomer,
-  customerController.createCustomer,
-);
 
 /**
  * @swagger
@@ -162,13 +165,6 @@ router.post(
  *       404:
  *         description: Клиент не найден
  */
-router.put(
-  "/:id",
-  auth,
-  validateUpdateCustomer,
-  customerController.updateCustomer ||
-    ((req, res) => res.status(501).json({ message: "Not implemented yet" })),
-);
 
 /**
  * @swagger
@@ -194,11 +190,5 @@ router.put(
  *       409:
  *         description: Нельзя удалить клиента с активными заказами
  */
-router.delete(
-  "/:id",
-  auth,
-  customerController.deleteCustomer ||
-    ((req, res) => res.status(501).json({ message: "Not implemented yet" })),
-);
 
 module.exports = router;

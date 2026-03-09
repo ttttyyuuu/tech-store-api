@@ -44,4 +44,12 @@ exports.createCustomer = async (req, res, next) => {
   }
 };
 
+exports.updateCustomer = async (req, res, next) => {
+  try {
+    res.status(200).json({ message: "Обновление клиента (заглушка)" });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = exports;

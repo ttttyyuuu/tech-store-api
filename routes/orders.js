@@ -4,8 +4,25 @@ const router = express.Router();
 const orderController = require("../controllers/orderController");
 const auth = require("../middleware/auth");
 
-const validateCreateOrder = (req, res, next) => next();
-const validateUpdateOrder = (req, res, next) => next();
+const {
+  createOrder,
+  updateOrder,
+  getAllOrdersQuery,
+} = require("../validators/order");
+
+router.get("/", ...getAllOrdersQuery, orderController.getAllOrders);
+router.get("/:id", orderController.getOrderById);
+
+router.post("/", auth, ...createOrder, orderController.createOrder);
+
+router.put("/:id", auth, ...updateOrder, orderController.updateOrder);
+
+router.delete(
+  "/:id",
+  auth,
+  orderController.deleteOrder ||
+    ((req, res) => res.status(501).json({ message: "Not implemented yet" })),
+);
 
 /**
  * @swagger
@@ -51,26 +68,7 @@ const validateUpdateOrder = (req, res, next) => next();
  *     responses:
  *       200:
  *         description: Список заказов (с информацией о клиенте и ПВЗ)
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id: { type: integer }
- *                   customerId: { type: integer }
- *                   customerName: { type: string }
- *                   totalPrice: { type: number }
- *                   status: { type: string }
- *                   pvzId: { type: integer }
- *                   pvzAddress: { type: string }
- *                   pvzCity: { type: string }
- *                   createdAt: { type: string, format: date-time }
- *       400:
- *         description: Некорректные параметры
  */
-router.get("/", orderController.getAllOrders);
 
 /**
  * @swagger
@@ -87,32 +85,9 @@ router.get("/", orderController.getAllOrders);
  *     responses:
  *       200:
  *         description: Детали заказа + массив позиций (items)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id: { type: integer }
- *                 customerId: { type: integer }
- *                 customerName: { type: string }
- *                 totalPrice: { type: number }
- *                 status: { type: string }
- *                 pvzId: { type: integer }
- *                 pvzAddress: { type: string }
- *                 pvzCity: { type: string }
- *                 createdAt: { type: string, format: date-time }
- *                 items:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       productName: { type: string }
- *                       quantity: { type: integer }
- *                       price: { type: number }
  *       404:
  *         description: Заказ не найден
  */
-router.get("/:id", orderController.getOrderById);
 
 /**
  * @swagger
@@ -161,7 +136,6 @@ router.get("/:id", orderController.getOrderById);
  *       404:
  *         description: Клиент или ПВЗ не найден
  */
-router.post("/", auth, validateCreateOrder, orderController.createOrder);
 
 /**
  * @swagger
@@ -197,7 +171,6 @@ router.post("/", auth, validateCreateOrder, orderController.createOrder);
  *       404:
  *         description: Заказ не найден
  */
-router.put("/:id", auth, validateUpdateOrder, orderController.updateOrder);
 
 /**
  * @swagger
@@ -223,6 +196,5 @@ router.put("/:id", auth, validateUpdateOrder, orderController.updateOrder);
  *       409:
  *         description: Нельзя удалить заказ со статусом, отличным от new/canceled
  */
-router.delete("/:id", auth, orderController.deleteOrder);
 
 module.exports = router;
