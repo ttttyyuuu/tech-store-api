@@ -1,5 +1,5 @@
 const config = require("../config");
-const AppError = require("../utils/appError");
+const AppError = require("../utils/AppError");
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;

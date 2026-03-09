@@ -50,3 +50,9 @@ app.listen(PORT, () => {
     `Документация доступна по адресу http://localhost:${PORT}/api-docs`,
   );
 });
+
+const customerController = require("./controllers/customerController");
+console.log(
+  "CustomerController загружен:",
+  !!customerController.getAllCustomers,
+);
