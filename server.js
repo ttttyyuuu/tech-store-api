@@ -46,7 +46,7 @@ app.use("/api/stats", statsRouter);
 app.use((err, req, res, next) => {
   console.error("Ошибка:", err.message);
   console.error(err.stack);
-  const status = err.status || 500;
+  const status = typeof err.status === 'number' ? err.status : 500;
   res.status(status).json({
     error: err.message || "Внутренняя ошибка сервера",
   });
