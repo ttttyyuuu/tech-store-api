@@ -15,8 +15,7 @@ router.put("/:id", auth, ...updateCustomer, customerController.updateCustomer);
 router.delete(
   "/:id",
   auth,
-  customerController.deleteCustomer ||
-    ((req, res) => res.status(501).json({ message: "Not implemented yet" })),
+  customerController.deleteCustomer,
 );
 
 module.exports = router;

@@ -85,7 +85,49 @@ exports.create = (data) => {
  */
 
 exports.update = (id, data) => {
-  throw new AppError("Обновление клиента не реализовано", 501);
+  const { name, email, phone } = data;
+
+  const updates = [];
+  const params = [];
+
+  if (name) {
+    updates.push("name = ?");
+    params.push(name);
+  }
+  if (email) {
+    const existing = db
+      .prepare("SELECT id FROM customers WHERE email = ? AND id != ?")
+      .get(email, id);
+    if (existing) {
+      throw new AppError("Клиент с таким email уже существует", 400);
+    }
+    updates.push("email = ?");
+    params.push(email);
+  }
+  if (phone) {
+    updates.push("phone = ?");
+    params.push(phone);
+  }
+
+  if (!updates.length) {
+    throw new AppError("Не указаны поля для обновления", 400);
+  }
+
+  params.push(id);
+
+  const stmt = db.prepare(`
+    UPDATE customers
+    SET ${updates.join(", ")}
+    WHERE id = ?
+  `);
+
+  const info = stmt.run(...params);
+
+  if (info.changes === 0) {
+    throw new AppError("Клиент не найден", 404);
+  }
+
+  return exports.getById(id);
 };
 
 /**
@@ -93,5 +135,20 @@ exports.update = (id, data) => {
  */
 
 exports.delete = (id) => {
-  throw new AppError("Удаление клиента не реализовано", 501);
+  const customer = db.prepare("SELECT id FROM customers WHERE id = ?").get(id);
+  if (!customer) {
+    throw new AppError("Клиент не найден", 404);
+  }
+
+  const hasOrders = db
+    .prepare("SELECT 1 FROM orders WHERE customerId = ?")
+    .get(id);
+  if (hasOrders) {
+    throw new AppError(
+      "Невозможно удалить клиента с активными заказами",
+      409,
+    );
+  }
+
+  db.prepare("DELETE FROM customers WHERE id = ?").run(id);
 };

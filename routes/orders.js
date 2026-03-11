@@ -20,8 +20,7 @@ router.put("/:id", auth, ...updateOrder, orderController.updateOrder);
 router.delete(
   "/:id",
   auth,
-  orderController.deleteOrder ||
-    ((req, res) => res.status(501).json({ message: "Not implemented yet" })),
+  orderController.deleteOrder,
 );
 
 module.exports = router;

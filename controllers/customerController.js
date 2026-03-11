@@ -46,7 +46,19 @@ exports.createCustomer = async (req, res, next) => {
 
 exports.updateCustomer = async (req, res, next) => {
   try {
-    res.status(200).json({ message: "Обновление клиента (заглушка)" });
+    const { id } = req.params;
+    const updated = await customerService.update(id, req.body);
+    res.status(200).json(updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteCustomer = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await customerService.delete(id);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
